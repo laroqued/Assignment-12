@@ -1,8 +1,11 @@
 import React, { Component } from "react";
 import { render } from "react-dom";
-import './App.css';
+import "./App.css";
 
 
+// =============================================================
+// Product (Imports Filters, ProductTable, and ProductForm )
+// =============================================================
 
 let PRODUCTS = {
   1: { id: 1, category: "Music", price: "$459.99", name: "Clarinet" },
@@ -15,11 +18,97 @@ let PRODUCTS = {
 
 
 
+class Product extends Component {
+  // constructor(props) {
+  //   super(props);
+  // }
+ 
+  state = {
+    id: 0,
+    category: "",
+    price: "",
+    name: "",
+  };
+   
+  render() { 
+    return (
+      <>
+        <h1>My Inventory</h1>
+       <Filters/>
+      </>
+    );
+  }
+}
+ 
+
+
+
+// =============================================================
+// Filters (Renders a form and a text box inside the form for search and filtering out our product list)
+// =============================================================
+
+class Filters extends Component {
+  // constructor(props) {
+  //   super(props);
+  // }
+
+  state = {
+    value: "",
+  };
+
+  newSearch = (e) => {
+    this.setState({ value: e.target.value });
+  };
+
+  submit = (e) => {
+    console.log("Search: " + this.state.value);
+    e.preventDefault();
+  };
+
+  render() {
+    return (
+      <>
+        <form onSubmit={this.submit}>
+          <label>
+            <input type="text" 
+            placeholder="Search..."
+            onChange={this.newSearch} />
+            <br />
+  
+          </label>
+        </form>
+      </>
+    );
+  }
+}
+ 
+
+
+
+
+// =============================================================
+// ProductTable (Imports ProductRow)
+// =============================================================
+
+
+
+// =============================================================
+// ProductForm (Renders a form that displays text boxes for name, category, and price. Submit button for ‘Save’.)
+// =============================================================
+
+
+
+// =============================================================
+// ProductRow (Each <td> tag will display name and price (retrieved from props), and a button to delete )
+// =============================================================
+
+
+
 
 function App() {
   return (
     <div className="App">
-<h1>My Inventory</h1>
+      <Product/>
     </div>
   );
 }
