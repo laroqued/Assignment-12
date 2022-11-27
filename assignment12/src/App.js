@@ -1,11 +1,9 @@
 import React, { Component } from "react";
 import { render } from "react-dom";
-import "./App.css";
+// import "./App.css";
 
 
-// =============================================================
-// Product (Imports Filters, ProductTable, and ProductForm )
-// =============================================================
+
 
 let PRODUCTS = {
   1: { id: 1, category: "Music", price: "$459.99", name: "Clarinet" },
@@ -18,28 +16,7 @@ let PRODUCTS = {
 
 
 
-class Product extends Component {
-  // constructor(props) {
-  //   super(props);
-  // }
- 
-  state = {
-    id: 0,
-    category: "",
-    price: "",
-    name: "",
-  };
-   
-  render() { 
-    return (
-      <>
-        <h1>My Inventory</h1>
-       <Filters/>
-      </>
-    );
-  }
-}
- 
+
 
 
 
@@ -48,9 +25,9 @@ class Product extends Component {
 // =============================================================
 
 class Filters extends Component {
-  // constructor(props) {
-  //   super(props);
-  // }
+  constructor(props) {
+    super(props);
+  }
 
   state = {
     value: "",
@@ -82,25 +59,99 @@ class Filters extends Component {
   }
 }
  
+// =============================================================
+// Product (Imports Filters, ProductTable, and ProductForm )
+// =============================================================
+class Product extends Component {
+  constructor(props) {
+    super(props);
+  }
 
+  state = {
+    id: 0,
+    category: "",
+    price: "",
+    name: "",
+  };
+
+  render() {
+    return (
+      <>
+        <h1>My Inventory</h1>
+        <Filters />
+        <ProductForm/>
+        <ProductTable/>
+      </>
+    );
+  }
+}
+ 
+ 
 
 
 
 // =============================================================
 // ProductTable (Imports ProductRow)
 // =============================================================
+class ProductTable extends Component {
+  constructor(props) {
+    super(props);
 
+
+  }
+  state = { 
+
+   }
+  render() { 
+    return ( 
+    <>
+    <ProductRow/>
+    </> );
+  }
+}
+ 
 
 
 // =============================================================
 // ProductForm (Renders a form that displays text boxes for name, category, and price. Submit button for ‘Save’.)
 // =============================================================
+class ProductForm extends Component {
+  constructor(props) {
+    super(props);
+  }
+  state = { 
+
+   }
+  render() { 
+    return ( <>
+
+    </> );
+  }
+}
+ 
 
 
 
 // =============================================================
 // ProductRow (Each <td> tag will display name and price (retrieved from props), and a button to delete )
 // =============================================================
+
+class ProductRow extends Component {
+  constructor(props) {
+    super(props);
+  }
+  state = { 
+
+   }
+  render() { 
+    return ( 
+    <>
+    
+    </> );
+  }
+}
+ 
+
 
 
 
@@ -112,5 +163,4 @@ function App() {
     </div>
   );
 }
-
 export default App;
