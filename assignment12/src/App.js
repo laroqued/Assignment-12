@@ -18,30 +18,32 @@ let PRODUCTS = {
 class Filters extends Component {
   constructor(props) {
     super(props);
+    this.handleChange = this.handleChange.bind(this);
   }
 
   state = {
     value: "",
   };
 
-  newSearch = (e) => {
-    this.setState({ value: e.target.value });
-  };
+  handleChange(e) {
+    const value = e.target.value;
+    const name = e.target.name;
 
-  submit = (e) => {
-    console.log("Search: " + this.state.value);
-    e.preventDefault();
-  };
+    this.props.onFilter({
+      [name]: value,
+    });
+  }
 
   render() {
     return (
       <>
-        <form onSubmit={this.submit}>
+        <form>
           <label>
             <input
               type="text"
               placeholder="Search..."
-              onChange={this.newSearch}
+              name="filterText"
+              onChange={this.handleChange}
             />
             <br />
           </label>
@@ -57,22 +59,50 @@ class Filters extends Component {
 class Product extends Component {
   constructor(props) {
     super(props);
+    this.handleFilter = this.handleFilter.bind(this);
+    this.handleSave = this.handleSave.bind(this);
+    this.handleDestroy = this.handleDestroy.bind(this);
   }
 
   state = {
-    id: 0,
-    category: "",
-    price: "",
-    name: "",
+    filterText: "",
+    products: PRODUCTS,
+    rows: [],
   };
+  handleFilter(filterInput) {
+    this.setState(filterInput);
+  }
+
+  handleSave(product) {
+    if (!product.id) {
+      product.id = new Date().getTime();
+    }
+    this.setState((prevState) => {
+      let products = prevState.products;
+      products[product.id] = product;
+      return { products };
+    });
+  }
+  handleDestroy(productId) {
+    this.setState((prevState) => {
+      let products = prevState.products;
+      delete products[productId];
+      return { products };
+    });
+  }
 
   render() {
     return (
       <>
         <h1>My Inventory</h1>
-        <Filters />
-        <ProductTable products={PRODUCTS} headers={["Name", "Price"]} />
-        <ProductForm />
+        <Filters onFilter={this.handleFilter} />
+        <ProductTable
+          headers={["Name", "Price"]}
+          filterText={this.state.filterText}
+          products={this.state.products}
+          rows={this.state.rows}
+        />
+        <ProductForm onDestroy={this.handleDestroy} onSave={this.handleSave} />
       </>
     );
   }
@@ -81,37 +111,43 @@ class Product extends Component {
 // =============================================================
 // ProductTable (Imports ProductRow)
 // =============================================================
-function ProductTable(props) {
-  return (
-    <>
-      <table>
-        <thead>
-          <tr key="">
-            <th>name</th>
-            <th>price</th>
-          </tr>
-        </thead>
-        <ProductRow products={PRODUCTS} />
-        <tbody>
-          {Object.keys(PRODUCTS).map((key, index) => (
-            <tr key={index}>
-              <td>{props.products[key].name}</td>
-              <td>{props.products[key].price}</td>
-              <td>
-                {
-                  <input
-                    type="submit"
-                    value="Delete"
-                    onClick={() => this.deleteElementsOnSubmit()}
-                  />
-                }
-              </td>
+class ProductTable extends Component {
+  constructor(props) {
+    super(props);
+    this.handleDestroy = this.handleDestroy.bind(this);
+  }
+
+  //------------------------------------
+  // NOT SURE WHERE THIS GOES
+  //------------------------------------
+  // this.rows.push(
+  //   <ProductRow
+  //     product={this.product}
+  //     key={this.product.id}
+  //     onDestroy={this.handleDestroy}
+  //   />
+  // );
+
+  handleDestroy(id) {
+    this.props.onDestroy(id);
+  }
+
+  render() {
+    return (
+      <>
+        <table>
+          <thead>
+            <tr key="">
+              <th>name</th>
+              <th>price</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </>
-  );
+          </thead>
+
+          <ProductRow products={PRODUCTS} />
+        </table>
+      </>
+    );
+  }
 }
 
 // =============================================================
@@ -120,19 +156,49 @@ function ProductTable(props) {
 class ProductForm extends Component {
   constructor(props) {
     super(props);
+    this.handleSave = this.handleSave.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+    this.handleDestroy = this.handleDestroy.bind(this);
   }
-  state = {};
+
+  handleSave(e) {
+    const RESET_VALUES = { id: "", category: "", price: "", name: "" };
+    this.props.onSave(this.state.product);
+    this.setState({
+      product: Object.assign({}, RESET_VALUES),
+      errors: {},
+    });
+    e.preventDefault(); //Prevent form from triggering HTTP POST
+  }
+  handleChange(e) {
+    const target = e.target;
+    const value = target.value;
+    const name = target.name;
+
+    this.setState((prevState) => {
+      prevState.product[name] = value;
+      return { product: prevState.product };
+    });
+  }
+  handleDestroy(id) {
+    this.props.onDestroy(id);
+  }
+
   render() {
     return (
       <>
         <h3>Enter a new product</h3>
+        {/* ------------------------------------------- */}
         <label>Name</label> <br />
-        <input type="text" /> <br /> <br />
+        <input type="text" onChange={this.handleChange} /> <br /> <br />
+        {/* ------------------------------------------- */}
         <label>Category</label> <br />
-        <input type="text" /> <br /> <br />
+        <input type="text" onChange={this.handleChange} /> <br /> <br />
+        {/* ------------------------------------------- */}
         <label>Price</label> <br />
-        <input type="text" /> <br /> <br />
-        <input type="Submit" />
+        <input type="text" onChange={this.handleChange} /> <br /> <br />
+        {/* ------------------------------------------- */}
+        <input type="Submit" value="Save" onClick={this.handleSave} />
       </>
     );
   }
@@ -141,14 +207,32 @@ class ProductForm extends Component {
 // =============================================================
 // ProductRow (Each <td> tag will display name and price (retrieved from props), and a button to delete )
 // =============================================================
-
 class ProductRow extends Component {
   constructor(props) {
     super(props);
+    this.destroy = this.destroy.bind(this);
   }
-  state = {};
+
+  destroy() {
+    this.props.onDestroy(this.props.product.id);
+  }
+
   render() {
-    return <></>;
+    return (
+      <>
+        <tbody>
+          {Object.keys(PRODUCTS).map((key, index) => (
+            <tr key={index}>
+              <td>{this.props.products[key].name}</td>
+              <td>{this.props.products[key].price}</td>
+              <td>
+                {<input type="submit" value="Delete" onClick={this.destroy} />}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </>
+    );
   }
 }
 
